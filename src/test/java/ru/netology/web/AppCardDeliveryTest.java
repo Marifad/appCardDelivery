@@ -1,37 +1,35 @@
 package ru.netology.web;
 
 import org.junit.jupiter.api.Test;
+import org.openqa.selenium.Keys;
 
 import java.time.Duration;
+import java.time.LocalDate;
+import java.time.format.DateTimeFormatter;
 
 import static com.codeborne.selenide.Condition.*;
-import static com.codeborne.selenide.Selectors.*;
 import static com.codeborne.selenide.Selenide.*;
 
 public class AppCardDeliveryTest {
 
+String meetingDate = LocalDate.now().plusDays(4).format(DateTimeFormatter.ofPattern("dd.MM.yyyy"));
+
 
         @Test
-        void shouldRegisterByAccountNumberDOMModification() {
+        void shouldBookCard() {
             open("http://localhost:9999");
-            $$(".tab-item").find(exactText("По номеру счёта")).click();
-            $("[name='number']").setValue("4055 0100 0123 4613 8564");
-            $("[name='phone']").setValue("+792000000000");
-            $$("button").find(exactText("Продолжить")).click();
-            $(withText("Успешная авторизация")).shouldBe(visible, Duration.ofMillis(5000));
-            $(byText("Личный кабинет")).shouldBe(visible, Duration.ofMillis(5000));
+            $("[data-test-id='city'] input").setValue("Москва");
+            $("[data-test-id='date'] input").sendKeys(Keys.chord(Keys.SHIFT, Keys.HOME), Keys.DELETE);
+            $("[data-test-id='date'] input").sendKeys(meetingDate);
+            $("[data-test-id='name']").$("input").setValue("Петров-Водкин Константин");
+            $("[data-test-id='phone'] input").setValue("+79201111111");
+            $("[data-test-id='agreement']").click();
+            $$("button").find(exactText("Забронировать")).click();
+            $(".notification__content").shouldBe(visible, Duration.ofMillis(15000));
+            $(".notification__content").shouldHave(exactText("Встреча успешно забронирована на " + meetingDate));
         }
 
-        @Test
-        void shouldRegisterByAccountNumberVisibilityChange() {
-            open("http://localhost:9999");
-            $$(".tab-item").find(exactText("По номеру счёта")).click();
-            $$("[name='number']").last().setValue("4055 0100 0123 4613 8564");
-            $$("[name='phone']").last().setValue("+792000000000");
-            $$("button").find(exactText("Продолжить")).click();
-            $(withText("Успешная авторизация")).shouldBe(visible, Duration.ofSeconds(5));
-            $(byText("Личный кабинет")).shouldBe(visible, Duration.ofSeconds(5));
-        }
+
     }
 
 
